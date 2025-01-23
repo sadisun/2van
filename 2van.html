@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форум 2van</title>
+    <style>
+        body { background: black; color: red; font-family: Arial; }
+        .container { width: 80%; margin: auto; padding: 20px; }
+        .post { border: 1px solid red; margin: 10px 0; padding: 10px; position: relative; }
+        img { max-width: 300px; max-height: 300px; position: absolute; top: 10px; right: 10px; border: 1px solid red; }
+        .timer { color: white; margin-left: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Форум 2van</h1>
+        <div id="posts"></div>
+        <input type="text" id="nickname" placeholder="Ваш ник">
+        <input type="text" id="title" placeholder="Заголовок">
+        <textarea id="message" rows="4" placeholder="Ваше сообщение"></textarea>
+        <input type="file" id="image" accept="image/*">
+        <button id="submitBtn" onclick="addPost()">Отправить</button>
+        <span id="timer" class="timer">100</span> секунд
+    </div>
+
+    <script>
+        let lastPostTime = 0, countdownInterval;
+
+        function startCountdown() {
+            let timeLeft = 100;
+            document.getElementById('timer').innerText = timeLeft;
+            countdownInterval = setInterval(() => {
+                if (--timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('submitBtn').disabled = false;
+                }
+                document.getElementById('timer').innerText = timeLeft;
+            }, 1000);
+        }
+
+        function addPost() {
+            const currentTime = Date.now();
+            if (currentTime - lastPostTime < 100000) {
+                alert('Пожалуйста, подождите 100 секунд.');
+                return;
+            }
+
+            const nickname = document.getElementById('nickname').value || 'fondat';
+            const title = document.getElementById('title').value;
+            const message = document.getElementById('message').value;
+            const imageFile = document.getElementById('image').files[0];
+
+            if (!message.trim() && !imageFile) {
+                alert('Введите сообщение или загрузите изображение.');
+                return;
+            }
+
+            const postDiv = document.createElement('div');
+            postDiv.className = 'post';
+            postDiv.innerHTML = `<strong>${nickname}</strong>: <h3>${title}</h3><p>${message}</p>`;
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = e => postDiv.innerHTML += `<img src="${e.target.result}" alt="Uploaded Image">`;
+                reader.readAsDataURL(imageFile);
+            }
+            document.getElementById('posts').appendChild(postDiv);
+
+            lastPostTime = currentTime;
+            startCountdown();
+            document.getElementById('nickname').value = '';
+            document.getElementById('title').value = '';
+            document.getElementById('message').value = '';
+            document.getElementById('image').value = '';
+        }
+    </script>
+</body>
+</html>
